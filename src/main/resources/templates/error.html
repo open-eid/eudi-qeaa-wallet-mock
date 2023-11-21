@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <title>Error</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="alert alert-danger" role="alert">
+        <p><strong>HTTP <span th:remove="tag" th:text="${status}"></span></strong></p>
+        <p th:utext="${error}"></p>
+        <p th:if="${message != null}" th:utext="${message}"></p>
+    </div>
+</div>
+</body>
+</html>
