@@ -1,6 +1,7 @@
 package ee.ria.eudi.qeaa.wallet.model;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,14 +22,11 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String state;
-    private String codeChallenge;
-    private String codeChallengeMethod;
+    private CodeVerifier codeVerifier;
 
     @Builder
-    public Session(JWTClaimsSet requestObjectClaims) throws ParseException {
+    public Session(JWTClaimsSet requestObjectClaims, CodeVerifier codeVerifier) throws ParseException {
         state = requestObjectClaims.getStringClaim("state");
-        codeChallenge = requestObjectClaims.getStringClaim("code_challenge");
-        codeChallengeMethod = requestObjectClaims.getStringClaim("code_challenge_method");
+        this.codeVerifier = codeVerifier;
     }
 }
-

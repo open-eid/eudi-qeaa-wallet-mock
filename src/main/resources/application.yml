@@ -25,6 +25,12 @@ spring:
           keystore:
             certificate: classpath:eudi-wallet-provider.localhost.crt
             private-key: classpath:eudi-wallet-provider.localhost.key
+        eudi-issuer:
+          key:
+            alias: eudi-issuer.localhost
+          keystore:
+            certificate: classpath:eudi-issuer.localhost.crt
+            private-key: classpath:eudi-issuer.localhost.key
   application:
     name: eudi-wallet-mock
   datasource:
@@ -52,3 +58,11 @@ management:
       enabled: true
     os:
       enabled: true
+
+eudi:
+  wallet:
+    base-url: https://eudi-wallet.localhost:16443
+    ttl:
+      par-request-object: 60s
+  issuer:
+    base-url: https://eudi-issuer.localhost:13443
