@@ -40,6 +40,8 @@ spring:
     password:
   main:
     banner-mode: off
+  mvc:
+    log-resolved-exception: false
 
 management:
   endpoint:
