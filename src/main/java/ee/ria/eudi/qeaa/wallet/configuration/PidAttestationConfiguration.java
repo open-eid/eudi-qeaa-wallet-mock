@@ -42,6 +42,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static ee.ria.eudi.qeaa.wallet.model.Credential.CREDENTIAL_FORMAT_MSO_MDOC;
+
 @Configuration
 @RequiredArgsConstructor
 public class PidAttestationConfiguration {
@@ -77,6 +79,19 @@ public class PidAttestationConfiguration {
         mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "document_number", new StringElement("KE1234567"));
         mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_EE_1, "personal_identification_number", new StringElement("60001019906"));
         return mDocBuilder.sign(validityInfo, deviceKeyInfo, issuerCryptoProvider, KEY_ID_ISSUER);
+    }
+
+    @Bean
+    public CommandLineRunner persistPidAttestation(MDoc pidAttestation, CredentialRepository credentialRepository) {
+        return args -> {
+            Credential credential = Credential.builder()
+                .format(CREDENTIAL_FORMAT_MSO_MDOC)
+                .doctype(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1)
+                .value(pidAttestation.toCBORHex())
+                .issuedAt(LocalDateTime.now())
+                .build();
+            credentialRepository.save(credential);
+        };
     }
 
     private FullDateElement getFullDateElement(int year, int month, int day) {
