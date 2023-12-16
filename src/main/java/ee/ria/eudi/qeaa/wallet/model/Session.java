@@ -22,11 +22,13 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String state;
+    private String redirectUri;
     private CodeVerifier codeVerifier;
 
     @Builder
     public Session(JWTClaimsSet requestObjectClaims, CodeVerifier codeVerifier) throws ParseException {
         state = requestObjectClaims.getStringClaim("state");
+        redirectUri = requestObjectClaims.getStringClaim("redirect_uri");
         this.codeVerifier = codeVerifier;
     }
 }
