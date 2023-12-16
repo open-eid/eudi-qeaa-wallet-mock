@@ -30,4 +30,8 @@ public class Credential {
     private String format;
     private String doctype;
     private LocalDateTime issuedAt;
+    @Lob
+    private String accessToken;
+    private String cNonce;
+    private Long cNonceExpiresIn;
 }
