@@ -9,6 +9,7 @@ import org.springframework.boot.ssl.SslBundleKey;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -53,5 +54,10 @@ public class WalletConfiguration {
         SslBundleKey bundleKey = bundle.getKey();
         String password = bundleKey.getPassword();
         return ECKey.load(keyStore, bundleKey.getAlias(), password != null ? password.toCharArray() : null);
+    }
+
+    @Bean
+    public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
+        return new HiddenHttpMethodFilter();
     }
 }
