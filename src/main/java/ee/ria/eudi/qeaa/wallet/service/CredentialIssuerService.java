@@ -23,9 +23,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Service
 @RequiredArgsConstructor
 public class CredentialIssuerService {
-    public static final String CREDENTIAL_REQUEST_MAPPING = "http://eudi-issuer.localhost:13080/credential";
-    private final AttestationService attestationService;
     private final CredentialJwtKeyProofFactory credentialJwtKeyProofFactory;
+    private final MetadataService metadataService;
     private final RestClient.Builder restClientBuilder;
     private final RestClientSsl ssl;
     private RestClient restClient;
@@ -60,7 +59,7 @@ public class CredentialIssuerService {
 
     private CredentialResponse request(SignedJWT accessToken, SignedJWT dPoPProof, SignedJWT credentialJwtKeyProof) {
         return restClient.post()
-            .uri(CREDENTIAL_REQUEST_MAPPING)
+            .uri(metadataService.getCredentialIssuerMetadata().credentialEndpoint())
             .header("Authorization", "DPoP " + accessToken.serialize())
             .header("DPoP", dPoPProof.serialize())
             .body(getRequestBody(credentialJwtKeyProof))

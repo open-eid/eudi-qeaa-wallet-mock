@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.ssl.SslBundle;
 import org.springframework.boot.ssl.SslBundleKey;
 import org.springframework.boot.ssl.SslBundles;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
@@ -16,6 +17,7 @@ import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 
 @Configuration
+@EnableCaching
 @ConfigurationPropertiesScan
 public class WalletConfiguration {
 

@@ -20,11 +20,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Service
 @RequiredArgsConstructor
 public class AuthorizationService {
-    public static final String PAR_REQUEST_MAPPING = "http://eudi-as.localhost:12080/as/par";
-    public static final String TOKEN_REQUEST_MAPPING = "http://eudi-as.localhost:12080/token";
     public static final String CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-client-attestation";
     private final RestClient.Builder restClientBuilder;
     private final RestClientSsl ssl;
+    private final MetadataService metadataService;
     private final SignedJWT walletInstanceAttestation;
     private RestClient restClient;
 
@@ -41,7 +40,7 @@ public class AuthorizationService {
         payload.add("client_assertion_type", CLIENT_ASSERTION_TYPE);
         payload.add("client_assertion", clientAttestation.serialize() + "~" + clientAttestationPoP.serialize());
         return restClient.post()
-            .uri(PAR_REQUEST_MAPPING) // TODO: From metadata
+            .uri(metadataService.getAuthorizationServerMetadata().pushedAuthorizationRequestEndpoint())
             .body(payload)
             .contentType(APPLICATION_FORM_URLENCODED)
             .accept(APPLICATION_JSON)
@@ -66,7 +65,7 @@ public class AuthorizationService {
         payload.add("client_assertion", clientAttestation.serialize() + "~" + clientAttestationPoP.serialize());
         payload.add("redirect_uri", redirectUri);
         return restClient.post()
-            .uri(TOKEN_REQUEST_MAPPING) // TODO: From metadata
+            .uri(metadataService.getAuthorizationServerMetadata().tokenEndpoint())
             .header("DPoP", dPoPProof.serialize())
             .body(payload)
             .contentType(APPLICATION_FORM_URLENCODED)

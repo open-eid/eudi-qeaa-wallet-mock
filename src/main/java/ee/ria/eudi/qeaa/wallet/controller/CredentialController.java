@@ -25,6 +25,7 @@ import ee.ria.eudi.qeaa.wallet.repository.CredentialRepository;
 import ee.ria.eudi.qeaa.wallet.repository.SessionRepository;
 import ee.ria.eudi.qeaa.wallet.service.AuthorizationService;
 import ee.ria.eudi.qeaa.wallet.service.CredentialIssuerService;
+import ee.ria.eudi.qeaa.wallet.service.MetadataService;
 import ee.ria.eudi.qeaa.wallet.util.AccessTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +65,7 @@ public class CredentialController {
     private final SessionRepository sessionRepository;
     private final SignedJWT walletInstanceAttestation;
     private final WalletProperties walletProperties;
+    private final MetadataService metadataService;
 
     @GetMapping("/")
     public ModelAndView credentialsView() {
@@ -117,7 +119,7 @@ public class CredentialController {
     public RedirectView requestCredential() throws JOSEException, ParseException {
         CodeVerifier codeVerifier = new CodeVerifier();
         SignedJWT requestObject = authorizationRequestObjectFactory.create(codeVerifier, getAuthorizationDetails());
-        SignedJWT walletInstanceAttestationPoP = clientAttestationPoPJwtFactory.create("http://eudi-as.localhost:12080/as/par"); // TODO: From metadata
+        SignedJWT walletInstanceAttestationPoP = clientAttestationPoPJwtFactory.create(metadataService.getAuthorizationServerMetadata().pushedAuthorizationRequestEndpoint());
         ParResponse parResponse = authorizationService.pushedAuthorizationRequest(requestObject, walletInstanceAttestation, walletInstanceAttestationPoP);
         sessionRepository.save(Session.builder()
             .requestObjectClaims(requestObject.getJWTClaimsSet())
@@ -126,7 +128,7 @@ public class CredentialController {
 
         String wiaSubject = walletInstanceAttestation.getJWTClaimsSet().getStringClaim(JWTClaimNames.SUBJECT);
         return new RedirectView(UriComponentsBuilder
-            .fromUriString("http://eudi-as.localhost:12080/authorize") // TODO: From metadata
+            .fromUriString(metadataService.getAuthorizationServerMetadata().authorizationEndpoint())
             .queryParam("request_uri", parResponse.requestUri())
             .queryParam("client_id", wiaSubject)
             .toUriString());

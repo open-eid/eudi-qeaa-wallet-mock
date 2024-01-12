@@ -15,6 +15,7 @@ import ee.ria.eudi.qeaa.wallet.repository.CredentialRepository;
 import ee.ria.eudi.qeaa.wallet.repository.SessionRepository;
 import ee.ria.eudi.qeaa.wallet.service.AuthorizationService;
 import ee.ria.eudi.qeaa.wallet.service.CredentialIssuerService;
+import ee.ria.eudi.qeaa.wallet.service.MetadataService;
 import ee.ria.eudi.qeaa.wallet.util.AccessTokenUtil;
 import ee.ria.eudi.qeaa.wallet.validation.AccessTokenValidator;
 import lombok.RequiredArgsConstructor;
@@ -42,20 +43,20 @@ public class CredentialCallbackController {
     private final CredentialRepository credentialRepository;
     private final SessionRepository sessionRepository;
     private final SignedJWT walletInstanceAttestation;
+    private final MetadataService metadataService;
 
     @GetMapping(ISSUANCE_CALLBACK_REQUEST_MAPPING)
     public ModelAndView issuanceRequestCallback(@RequestParam(name = "state") String state,
                                                 @RequestParam(name = "code") String code) throws JOSEException, ParseException {
         Session session = sessionRepository.findByState(state).orElseThrow(() -> new WalletException("Session not found"));
-        String tokenEndpoint = "http://eudi-as.localhost:12080/token"; // TODO: From metadata
-        SignedJWT tokenDPoPProof = dPoPFactory.create(HttpMethod.POST, tokenEndpoint);
-        SignedJWT walletInstanceAttestationPoP = clientAttestationPoPJwtFactory.create(tokenEndpoint);
+        SignedJWT tokenDPoPProof = dPoPFactory.create(HttpMethod.POST, metadataService.getAuthorizationServerMetadata().tokenEndpoint());
+        SignedJWT walletInstanceAttestationPoP = clientAttestationPoPJwtFactory.create(metadataService.getAuthorizationServerMetadata().tokenEndpoint());
         TokenResponse tokenResponse = authorizationService.tokenRequest(code, session.getCodeVerifier(), tokenDPoPProof,
             walletInstanceAttestation, walletInstanceAttestationPoP, session.getRedirectUri());
 
         SignedJWT accessToken = accessTokenValidator.validate(tokenResponse);
         String accessTokenHash = AccessTokenUtil.computeSHA256(tokenResponse.accessToken());
-        SignedJWT credentialDPoPProof = dPoPFactory.createCredentialDPoPProof(accessTokenHash);
+        SignedJWT credentialDPoPProof = dPoPFactory.create(HttpMethod.POST, metadataService.getCredentialIssuerMetadata().credentialEndpoint(), accessTokenHash);
         SignedJWT credentialJwtKeyProof = credentialJwtKeyProofFactory.create(tokenResponse.cNonce());
         CredentialResponse credentialResponse = credentialIssuerService.credentialRequest(accessToken, credentialDPoPProof, credentialJwtKeyProof);
 

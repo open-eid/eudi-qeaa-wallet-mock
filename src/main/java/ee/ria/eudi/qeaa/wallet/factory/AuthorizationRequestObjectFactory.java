@@ -32,6 +32,7 @@ public class AuthorizationRequestObjectFactory {
     private final ECKey walletSigningKey;
     private final ECDSASigner walletSigner;
     private final WalletProperties walletProperties;
+    private final MetadataService metadataService;
     private final SignedJWT walletInstanceAttestation;
 
     public SignedJWT create(CodeVerifier codeVerifier, Map<String, Object> authorizationDetails) throws ParseException, JOSEException {
@@ -40,7 +41,7 @@ public class AuthorizationRequestObjectFactory {
 
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
             .claim(JWTClaimNames.ISSUER, wiaSubject)
-            .claim(JWTClaimNames.AUDIENCE, "http://eudi-as.localhost:12080/as/par") // TODO: From metadata
+            .claim(JWTClaimNames.AUDIENCE, metadataService.getAuthorizationServerMetadata().pushedAuthorizationRequestEndpoint())
             .claim(JWTClaimNames.EXPIRATION_TIME, Instant.now().plusSeconds(requestObjectTtl).getEpochSecond())
             .claim(JWTClaimNames.ISSUED_AT, Instant.now().getEpochSecond())
             .claim(JWTClaimNames.JWT_ID, new JWTID(40).getValue())
