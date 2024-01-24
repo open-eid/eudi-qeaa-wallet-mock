@@ -37,10 +37,21 @@ public class RelyingPartyService {
     }
 
     public ResponseObjectResponse postResponseObject(String responseObjectEndpoint, String vpToken, String presentationSubmission, String state) {
-        LinkedMultiValueMap<String, String> payload = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, Object> payload = new LinkedMultiValueMap<>();
         payload.add("vp_token", vpToken);
         payload.add("presentation_submission", presentationSubmission);
         payload.add("state", state);
+        return postResponseObject(responseObjectEndpoint, payload);
+    }
+
+    public ResponseObjectResponse postErrorResponse(String responseObjectEndpoint, String error, String errorDescription) {
+        LinkedMultiValueMap<String, Object> payload = new LinkedMultiValueMap<>();
+        payload.add("error", error);
+        payload.add("error_description", errorDescription);
+        return postResponseObject(responseObjectEndpoint, payload);
+    }
+
+    private ResponseObjectResponse postResponseObject(String responseObjectEndpoint, LinkedMultiValueMap<String, Object> payload) {
         return restClient.post()
             .uri(responseObjectEndpoint)
             .body(payload)

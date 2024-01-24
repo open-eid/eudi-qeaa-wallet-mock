@@ -4,6 +4,7 @@ import COSE.OneKey;
 import com.nimbusds.jose.jwk.ECKey;
 import ee.ria.eudi.qeaa.wallet.model.Credential;
 import ee.ria.eudi.qeaa.wallet.repository.CredentialRepository;
+import ee.ria.eudi.qeaa.wallet.util.MDocUtil;
 import id.walt.mdoc.COSECryptoProviderKeyInfo;
 import id.walt.mdoc.SimpleCOSECryptoProvider;
 import id.walt.mdoc.dataelement.DEFullDateMode;
@@ -57,7 +58,7 @@ public class PidAttestationConfiguration {
     public SimpleCOSECryptoProvider issuerCryptoProvider(SslBundles sslBundles) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
         KeyPair issuerKey = getIssuerKey(sslBundles);
         if (issuerKey.getPublic() instanceof ECPublicKey ecPublicKey) {
-            return new SimpleCOSECryptoProvider(List.of(new COSECryptoProviderKeyInfo(KEY_ID_ISSUER, getAlgorithmId(ecPublicKey),
+            return new SimpleCOSECryptoProvider(List.of(new COSECryptoProviderKeyInfo(KEY_ID_ISSUER, MDocUtil.getAlgorithmId(ecPublicKey),
                 ecPublicKey, issuerKey.getPrivate(), getIssuerCertificateChain(sslBundles), Collections.emptyList())));
         } else {
             throw new IllegalArgumentException("Invalid key type. An Elliptic Curve key is required by ISO/IEC 18013-5:2021.");
@@ -125,15 +126,5 @@ public class PidAttestationConfiguration {
         OneKey key = new OneKey(walletSigningKey.toPublicKey(), null);
         MapElement deviceKeyDataElement = DataElement.Companion.fromCBOR(key.AsCBOR().EncodeToBytes());
         return new DeviceKeyInfo(deviceKeyDataElement, null, null);
-    }
-
-    private AlgorithmID getAlgorithmId(ECPublicKey ecPublicKey) {
-        int bitLength = ecPublicKey.getParams().getOrder().bitLength();
-        return switch (bitLength) {
-            case 256 -> AlgorithmID.ECDSA_256;
-            case 384 -> AlgorithmID.ECDSA_384;
-            case 521 -> AlgorithmID.ECDSA_512;
-            default -> throw new IllegalArgumentException("Unsupported key size: " + bitLength);
-        };
     }
 }

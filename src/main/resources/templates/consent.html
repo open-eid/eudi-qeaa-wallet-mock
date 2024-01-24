@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<div layout:fragment="content">
+    <h2>Consent</h2>
+    <form th:action="@{/consent/{id}(id=${presentation_definition.getId()})}" th:method="POST"
+          th:object="${presentation_consent}">
+        <div class="form-group">
+            <label class="form-check-label" th:text="Name"></label>
+            <p class="form-text">[[${presentation_definition.getName()}]]</p>
+        </div>
+        <div class="form-group">
+            <label class="form-check-label" th:text="Purpose"></label>
+            <p class="form-text">[[${presentation_definition.getPurpose()}]]</p>
+        </div>
+        <div class="form-check" th:each="entry, iterStat : *{claims}">
+            <label class="form-check-label" th:text="${entry.path}"></label>
+            <input class="form-check-input" th:field="*{claims[__${iterStat.index}__].selected}" type="checkbox"/>
+            <input th:field="*{claims[__${iterStat.index}__].inputDescriptorId}" type="hidden"/>
+            <input th:field="*{claims[__${iterStat.index}__].path}" type="hidden"/>
+        </div>
+        <button class="btn btn-secondary float-end m-1" name="_method" type="submit" value="DELETE">Cancel
+        </button>
+        <button class="btn btn-primary float-end ml-3 m-1" name="_method" type="submit" value="POST">Consent
+        </button>
+    </form>
+</div>
+</body>
+</html>

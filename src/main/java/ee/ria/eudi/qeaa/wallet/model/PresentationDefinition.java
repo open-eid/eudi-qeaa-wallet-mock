@@ -29,6 +29,25 @@ public final class PresentationDefinition {
     @OneToMany(cascade = CascadeType.ALL)
     private List<InputDescriptor> inputDescriptors;
 
+    public List<PresentationClaim> getRequestedClaims() {
+        return getInputDescriptors().stream()
+            .flatMap(inputDescriptor ->
+                inputDescriptor.getConstraints().getFields().stream()
+                    .flatMap(field ->
+                        field.getPath().stream()
+                            .map(pathValue -> PresentationClaim.builder()
+                                .inputDescriptorId(inputDescriptor.getId())
+                                .path(pathValue)
+                                .intentToRetain(field.isIntentToRetain())
+                                .selected(true)
+                                .build()
+                            )
+                    )
+            )
+            .filter(field -> !field.getPath().contains("$.type")) // Filter out requested credential type input descriptor. Consent is needed for claims only.
+            .toList();
+    }
+
     @Entity
     @Table(name = "input_descriptors")
     @Data

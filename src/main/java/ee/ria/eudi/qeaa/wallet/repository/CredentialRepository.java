@@ -10,4 +10,7 @@ import java.util.List;
 public interface CredentialRepository extends JpaRepository<Credential, Long> {
 
     List<Credential> findByOrderByIssuedAtDesc();
+
+    List<Credential> findByDoctypeOrderByIssuedAtDesc(String doctype);
+
 }
