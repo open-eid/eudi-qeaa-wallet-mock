@@ -12,7 +12,7 @@
 
     <groupId>ee.ria.eudi.qeaa</groupId>
     <artifactId>eudi-wallet-mock</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <name>EUDI Wallet MOCK</name>
 
     <properties>
