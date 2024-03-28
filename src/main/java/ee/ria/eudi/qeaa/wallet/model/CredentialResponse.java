@@ -7,9 +7,7 @@ import lombok.Builder;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record CredentialResponse(
-    String format,
     String credential,
     String cNonce,
-    Long cNonceExpiresIn
-) {
+    Long cNonceExpiresIn) {
 }

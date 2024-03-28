@@ -13,11 +13,12 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import ee.ria.eudi.qeaa.wallet.configuration.properties.WalletProperties;
 import ee.ria.eudi.qeaa.wallet.error.WalletException;
-import ee.ria.eudi.qeaa.wallet.factory.DPoPFactory;
 import ee.ria.eudi.qeaa.wallet.factory.AuthorizationRequestObjectFactory;
 import ee.ria.eudi.qeaa.wallet.factory.ClientAttestationPoPJwtFactory;
 import ee.ria.eudi.qeaa.wallet.factory.CredentialJwtKeyProofFactory;
+import ee.ria.eudi.qeaa.wallet.factory.DPoPFactory;
 import ee.ria.eudi.qeaa.wallet.model.Credential;
+import ee.ria.eudi.qeaa.wallet.model.CredentialRequest;
 import ee.ria.eudi.qeaa.wallet.model.CredentialResponse;
 import ee.ria.eudi.qeaa.wallet.model.ParResponse;
 import ee.ria.eudi.qeaa.wallet.model.Session;
@@ -106,7 +107,8 @@ public class CredentialController {
         String accessTokenHash = AccessTokenUtil.computeSHA256(credential.getAccessToken());
         SignedJWT credentialDPoPProof = dPoPFactory.create(HttpMethod.POST, metadataService.getCredentialIssuerMetadata().credentialEndpoint(), accessTokenHash);
         SignedJWT credentialJwtKeyProof = credentialJwtKeyProofFactory.create(credential.getCNonce());
-        CredentialResponse credentialResponse = credentialIssuerService.credentialRequest(accessToken, credentialDPoPProof, credentialJwtKeyProof);
+        CredentialRequest credentialRequest = getCredentialRequest(credentialJwtKeyProof, credential);
+        CredentialResponse credentialResponse = credentialIssuerService.credentialRequest(accessToken, credentialDPoPProof, credentialRequest);
         credential.setValue(credentialResponse.credential());
         credential.setCNonce(credentialResponse.cNonce());
         credential.setCNonceExpiresIn(credentialResponse.cNonceExpiresIn());
@@ -132,6 +134,18 @@ public class CredentialController {
             .queryParam("request_uri", parResponse.requestUri())
             .queryParam("client_id", wiaSubject)
             .toUriString());
+    }
+
+    private CredentialRequest getCredentialRequest(SignedJWT credentialJwtKeyProof, Credential credential) {
+        CredentialRequest.Proof proof = CredentialRequest.Proof.builder()
+            .proofType("jwt")
+            .jwt(credentialJwtKeyProof.serialize())
+            .build();
+        return CredentialRequest.builder()
+            .format(credential.getFormat())
+            .doctype(credential.getDoctype())
+            .proof(proof)
+            .build();
     }
 
     private Map<String, Object> getAuthorizationDetails() {

@@ -17,7 +17,6 @@ import org.springframework.web.client.RestClient;
 
 import java.text.ParseException;
 
-import static ee.ria.eudi.qeaa.wallet.model.Credential.CREDENTIAL_FORMAT_MSO_MDOC;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Service
@@ -34,50 +33,47 @@ public class CredentialIssuerService {
         restClient = restClientBuilder.apply(ssl.fromBundle("eudi-wallet")).build();
     }
 
-    public CredentialResponse credentialRequest(SignedJWT accessToken, SignedJWT dPoPProof, SignedJWT credentialJwtKeyProof) {
+    public CredentialResponse credentialRequest(SignedJWT accessToken, SignedJWT dPoPProof, CredentialRequest credentialRequest) {
         try {
-            return request(accessToken, dPoPProof, credentialJwtKeyProof);
+            return request(accessToken, dPoPProof, credentialRequest);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 CredentialErrorResponse errorResponse = e.getResponseBodyAs(CredentialErrorResponse.class);
                 if (errorResponse != null && errorResponse.cNonce() != null) {
-                    return retryRequestWithFreshNonce(accessToken, dPoPProof, errorResponse.cNonce());
+                    return retryRequestWithFreshNonce(accessToken, dPoPProof, credentialRequest, errorResponse.cNonce());
                 }
             }
             throw e;
         }
     }
 
-    private CredentialResponse retryRequestWithFreshNonce(SignedJWT accessToken, SignedJWT dPoPProof, String freshNonce) {
+    private CredentialResponse retryRequestWithFreshNonce(SignedJWT accessToken, SignedJWT dPoPProof, CredentialRequest credentialRequest, String freshNonce) {
         try {
             SignedJWT credentialJwtKeyProof = credentialJwtKeyProofFactory.create(freshNonce);
-            return request(accessToken, dPoPProof, credentialJwtKeyProof);
+            CredentialRequest.Proof proof = CredentialRequest.Proof.builder()
+                .proofType("jwt")
+                .jwt(credentialJwtKeyProof.serialize())
+                .build();
+            CredentialRequest newCredentialRequest = CredentialRequest.builder()
+                .format(credentialRequest.format())
+                .doctype(credentialRequest.doctype())
+                .proof(proof)
+                .build();
+            return request(accessToken, dPoPProof, newCredentialRequest);
         } catch (ParseException | JOSEException e) {
             throw new WalletException("Unable to request credential issuance", e);
         }
     }
 
-    private CredentialResponse request(SignedJWT accessToken, SignedJWT dPoPProof, SignedJWT credentialJwtKeyProof) {
+    private CredentialResponse request(SignedJWT accessToken, SignedJWT dPoPProof, CredentialRequest credentialRequest) {
         return restClient.post()
             .uri(metadataService.getCredentialIssuerMetadata().credentialEndpoint())
             .header("Authorization", "DPoP " + accessToken.serialize())
             .header("DPoP", dPoPProof.serialize())
-            .body(getRequestBody(credentialJwtKeyProof))
+            .body(credentialRequest)
             .contentType(APPLICATION_JSON)
             .accept(APPLICATION_JSON)
             .retrieve()
             .body(CredentialResponse.class);
-    }
-
-    private CredentialRequest getRequestBody(SignedJWT credentialJwtKeyProof) {
-        CredentialRequest.Proof proof = CredentialRequest.Proof.builder()
-            .proofType("jwt")
-            .jwt(credentialJwtKeyProof.serialize())
-            .build();
-        return CredentialRequest.builder()
-            .format(CREDENTIAL_FORMAT_MSO_MDOC)
-            .doctype("org.iso.18013.5.1.mDL")
-            .proof(proof)
-            .build();
     }
 }
