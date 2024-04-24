@@ -32,7 +32,7 @@ public class WalletAttestationConfiguration {
             .claim(JWTClaimNames.SUBJECT, X509CertUtil.getSubjectAlternativeNameDNSName(walletSigningCert)) // TODO: Should this be the thumbprint of the JWK in the cnf parameter?
             .claim(JWTClaimNames.ISSUED_AT, Instant.now().getEpochSecond())
             .claim(JWTClaimNames.EXPIRATION_TIME, Instant.now().plus(356, ChronoUnit.DAYS).getEpochSecond())
-            .claim("cnf", Map.of("jwk", walletSigningKey.toJSONObject()))
+            .claim("cnf", Map.of("jwk", walletSigningKey.toPublicJWK().toJSONObject()))
             .build();
 
         Curve curve = walletProviderSigningKey.getCurve();
