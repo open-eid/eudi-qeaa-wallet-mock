@@ -1,9 +1,11 @@
 package ee.ria.eudi.qeaa.wallet.util;
 
 import COSE.AlgorithmID;
+import id.walt.mdoc.dataelement.DataElement;
 import id.walt.mdoc.dataelement.EncodedCBORElement;
 import id.walt.mdoc.dataelement.ListElement;
 import id.walt.mdoc.dataelement.MapElement;
+import id.walt.mdoc.dataelement.NullElement;
 import id.walt.mdoc.dataelement.StringElement;
 import id.walt.mdoc.mdocauth.DeviceAuthentication;
 import lombok.experimental.UtilityClass;
@@ -20,8 +22,19 @@ public class MDocUtil {
     public static final String KEY_ID_DEVICE = "device-key-id";
 
     public DeviceAuthentication getDeviceAuthentication(String clientId, String doctype, String nonce) {
-        ListElement sessionTranscript = new ListElement(List.of(new StringElement("openID4VPHandover"),
-            new StringElement(clientId), new StringElement(nonce)));
+        ListElement sessionTranscript = new ListElement(
+            List.<DataElement<?>>of(
+                new NullElement(),
+                new NullElement(),
+                new ListElement(
+                    List.of(
+                        new StringElement("openID4VPHandover"),
+                        new StringElement(clientId),
+                        new StringElement(nonce))
+                )
+
+            )
+        );
         EncodedCBORElement deviceNameSpaces = new EncodedCBORElement(new MapElement(Map.of()));
         return new DeviceAuthentication(sessionTranscript, doctype, deviceNameSpaces);
     }
