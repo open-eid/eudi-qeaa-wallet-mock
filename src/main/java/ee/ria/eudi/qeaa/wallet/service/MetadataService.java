@@ -13,6 +13,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
@@ -39,7 +41,12 @@ public class MetadataService {
     @Cacheable("as-metadata")
     public AuthorizationServerMetadata getAuthorizationServerMetadata() {
         CredentialIssuerMetadata credentialIssuerMetadata = getCredentialIssuerMetadata();
-        return request(credentialIssuerMetadata.authorizationServers().getFirst() + OPENID_PROVIDER_WELL_KNOWN_PATH, AuthorizationServerMetadata.class);
+        List<String> authorizationServers = credentialIssuerMetadata.authorizationServers();
+        if (authorizationServers != null && !authorizationServers.isEmpty()) {
+            return request(authorizationServers.getFirst() + OPENID_PROVIDER_WELL_KNOWN_PATH, AuthorizationServerMetadata.class);
+        } else {
+            return request(credentialIssuerMetadata.credentialIssuer() + OPENID_PROVIDER_WELL_KNOWN_PATH, AuthorizationServerMetadata.class);
+        }
     }
 
     @SneakyThrows
