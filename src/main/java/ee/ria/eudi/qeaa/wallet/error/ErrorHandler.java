@@ -25,7 +25,7 @@ public class ErrorHandler {
         } else {
             log.error("Wallet exception: {}", getCauseMessages(ex), ex);
         }
-        response.sendError(HttpStatus.BAD_REQUEST.value());
+        response.sendError(ex.getErrorCode().getHttpStatusCode());
     }
 
     @ExceptionHandler({HttpClientErrorException.class})

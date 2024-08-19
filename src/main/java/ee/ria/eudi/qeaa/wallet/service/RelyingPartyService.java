@@ -1,5 +1,6 @@
 package ee.ria.eudi.qeaa.wallet.service;
 
+import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +36,9 @@ public class RelyingPartyService {
         return jwt == null ? null : SignedJWT.parse(jwt);
     }
 
-    public ResponseObjectResponse postResponseObject(String responseObjectEndpoint, String vpToken, String presentationSubmission, String state) {
+    public ResponseObjectResponse postResponseObject(String responseObjectEndpoint, EncryptedJWT response, String state) {
         LinkedMultiValueMap<String, Object> payload = new LinkedMultiValueMap<>();
-        payload.add("vp_token", vpToken);
-        payload.add("presentation_submission", presentationSubmission);
+        payload.add("response", response.serialize());
         payload.add("state", state);
         return postResponseObject(responseObjectEndpoint, payload);
     }

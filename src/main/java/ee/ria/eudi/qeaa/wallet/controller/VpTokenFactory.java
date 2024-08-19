@@ -4,6 +4,10 @@ import ee.ria.eudi.qeaa.wallet.error.WalletException;
 import ee.ria.eudi.qeaa.wallet.model.Credential;
 import ee.ria.eudi.qeaa.wallet.util.MDocUtil;
 import id.walt.mdoc.SimpleCOSECryptoProvider;
+import id.walt.mdoc.dataelement.MapElement;
+import id.walt.mdoc.dataelement.NumberElement;
+import id.walt.mdoc.dataelement.StringElement;
+import id.walt.mdoc.dataretrieval.DeviceResponse;
 import id.walt.mdoc.doc.MDoc;
 import id.walt.mdoc.docrequest.MDocRequest;
 import id.walt.mdoc.docrequest.MDocRequestBuilder;
@@ -11,12 +15,15 @@ import id.walt.mdoc.mdocauth.DeviceAuthentication;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static ee.ria.eudi.qeaa.wallet.error.ErrorCode.VP_FORMATS_NOT_SUPPORTED;
 import static ee.ria.eudi.qeaa.wallet.model.Credential.CREDENTIAL_FORMAT_MSO_MDOC;
 import static ee.ria.eudi.qeaa.wallet.util.MDocUtil.KEY_ID_DEVICE;
 
@@ -27,21 +34,22 @@ public class VpTokenFactory {
     private static final Pattern PATH_PATTERN = Pattern.compile("^\\$\\['([^']+)'\\]\\['([^']+)'\\]");
     private final SimpleCOSECryptoProvider deviceCryptoProvider;
 
-    public String create(Credential credential, PresentationConsent presentationConsent, String clientId, String nonce) {
+    public String create(Credential credential, PresentationConsent presentationConsent, String clientId, String responseUri, String nonce, String mDocNonce) {
         return switch (credential.getFormat()) {
-            case CREDENTIAL_FORMAT_MSO_MDOC -> createMsoMDoc(credential, presentationConsent, clientId, nonce);
+            case CREDENTIAL_FORMAT_MSO_MDOC ->
+                createMsoMDoc(credential, presentationConsent, clientId, responseUri, nonce, mDocNonce);
             case null, default ->
-                throw new WalletException("Unable to present credential. Unsupported credential format: " + credential.getFormat());
+                throw new WalletException("Unable to present credential. Unsupported credential format: " + credential.getFormat(), VP_FORMATS_NOT_SUPPORTED);
         };
     }
 
-    private String createMsoMDoc(Credential credential, PresentationConsent presentationConsent, String clientId, String nonce) {
+    private @NotNull String createMsoMDoc(Credential credential, PresentationConsent presentationConsent, String clientId, String responseUri, String nonce, String mDocNonce) {
         MDoc mDoc = MDoc.Companion.fromCBORHex(credential.getValue());
-        DeviceAuthentication deviceAuthentication = MDocUtil.getDeviceAuthentication(clientId, mDoc.getDocType().getValue(), nonce);
-        log.debug("Device authentication for client {} and nonce {} -> cbor hex: {}", clientId, nonce, deviceAuthentication.toDE().toCBORHex());
         MDocRequest mDocRequest = getMDocRequest(mDoc, presentationConsent);
+        DeviceAuthentication deviceAuthentication = MDocUtil.getDeviceAuthentication(clientId, mDoc.getDocType().getValue(), responseUri, nonce, mDocNonce);
+        log.info("Device authentication for client {}, response uri: {}, nonce {}, mdoc nonce {} -> cbor hex: {}", clientId, responseUri, nonce, mDocNonce, deviceAuthentication.toDE().toCBORHex());
         MDoc mDocPresentation = mDoc.presentWithDeviceSignature(mDocRequest, deviceAuthentication, deviceCryptoProvider, KEY_ID_DEVICE);
-        return mDocPresentation.toCBORHex();
+        return new DeviceResponse(List.of(mDocPresentation), new StringElement("1.0"), new NumberElement(0), new MapElement(Map.of())).toCBORBase64URL();
     }
 
     private MDocRequest getMDocRequest(MDoc mDoc, PresentationConsent presentationConsent) {

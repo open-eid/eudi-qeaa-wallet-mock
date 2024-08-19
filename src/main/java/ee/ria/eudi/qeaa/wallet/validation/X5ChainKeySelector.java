@@ -2,7 +2,6 @@ package ee.ria.eudi.qeaa.wallet.validation;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.X509CertChainUtils;
@@ -27,16 +26,16 @@ public class X5ChainKeySelector implements JWSKeySelector<SecurityContext> {
     private final KeyStore trustStore;
 
     @Override
-    public List<? extends Key> selectJWSKeys(JWSHeader header, SecurityContext context) throws KeySourceException {
+    public List<? extends Key> selectJWSKeys(JWSHeader header, SecurityContext context) {
         JWSAlgorithm alg = header.getAlgorithm();
         if (!acceptedJWSAlgorithms.contains(alg)) {
-            throw new KeySourceException("JWS header algorithm not accepted: " + alg);
+            throw new WalletException("JWS header algorithm not accepted: " + alg);
         }
         X509Certificate candidateKey = getCandidateKey(header);
         return List.of(candidateKey.getPublicKey());
     }
 
-    private X509Certificate getCandidateKey(JWSHeader header) throws KeySourceException {
+    private X509Certificate getCandidateKey(JWSHeader header) {
         try {
             List<X509Certificate> x509CertChain = X509CertChainUtils.parse(header.getX509CertChain());
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
@@ -49,11 +48,11 @@ public class X5ChainKeySelector implements JWSKeySelector<SecurityContext> {
             signingCert.checkValidity();
             String dSNName = X509CertUtil.getSubjectAlternativeNameDNSName(signingCert);
             if (!subjectAlternativeNameDNSName.equals(dSNName)) {
-                throw new WalletException("Invalid SAN dNSName ");
+                throw new WalletException("Invalid SAN dNSName");
             }
             return signingCert;
         } catch (Exception ex) {
-            throw new KeySourceException("Invalid x5chain", ex);
+            throw new WalletException("Invalid x5chain", ex);
         }
     }
 }

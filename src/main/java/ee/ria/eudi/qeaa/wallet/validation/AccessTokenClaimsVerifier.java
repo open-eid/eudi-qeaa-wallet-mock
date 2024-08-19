@@ -5,6 +5,7 @@ import com.nimbusds.jwt.JWTClaimNames;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import ee.ria.eudi.qeaa.wallet.error.WalletException;
 
 import java.text.ParseException;
 import java.util.List;
@@ -30,10 +31,10 @@ public class AccessTokenClaimsVerifier<C extends SecurityContext> extends Defaul
         try {
             Map<String, Object> cnfClaim = claimsSet.getJSONObjectClaim("cnf");
             if (!keyThumbprint.equals(cnfClaim.get("jkt"))) {
-                throw new BadJWTException("Invalid access token DPoP thumbprint");
+                throw new WalletException("Invalid access token DPoP thumbprint");
             }
         } catch (ParseException e) {
-            throw new BadJWTException("Invalid access token", e);
+            throw new WalletException("Invalid access token", e);
         }
     }
 }

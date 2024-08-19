@@ -56,8 +56,7 @@ public record CredentialIssuerMetadata(
             @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
             public record Logo(
                 String uri,
-                String altText
-            ) {
+                String altText) {
             }
 
         }
