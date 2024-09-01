@@ -1,7 +1,6 @@
 package ee.ria.eudi.qeaa.wallet.service;
 
 import com.nimbusds.jwt.SignedJWT;
-import ee.ria.eudi.qeaa.wallet.model.ResponseObjectResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -33,7 +32,7 @@ public class RelyingPartyService {
             .accept(MEDIA_TYPE_APPLICATION_OAUTH_AUTHZ_REQ_JWT)
             .retrieve()
             .body(String.class);
-        return SignedJWT.parse(jwt);
+        return jwt == null ? null : SignedJWT.parse(jwt);
     }
 
     public ResponseObjectResponse postResponseObject(String responseObjectEndpoint, String vpToken, String presentationSubmission, String state) {

@@ -1,16 +1,14 @@
 package ee.ria.eudi.qeaa.wallet.controller;
 
 import ee.ria.eudi.qeaa.wallet.error.WalletException;
-import ee.ria.eudi.qeaa.wallet.factory.VpTokenFactory;
 import ee.ria.eudi.qeaa.wallet.model.Credential;
-import ee.ria.eudi.qeaa.wallet.model.PresentationConsent;
 import ee.ria.eudi.qeaa.wallet.model.PresentationDefinition;
 import ee.ria.eudi.qeaa.wallet.model.PresentationDefinition.InputDescriptor;
 import ee.ria.eudi.qeaa.wallet.model.RequestObject;
-import ee.ria.eudi.qeaa.wallet.model.ResponseObjectResponse;
 import ee.ria.eudi.qeaa.wallet.repository.CredentialRepository;
 import ee.ria.eudi.qeaa.wallet.repository.RequestObjectRepository;
 import ee.ria.eudi.qeaa.wallet.service.RelyingPartyService;
+import ee.ria.eudi.qeaa.wallet.service.ResponseObjectResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

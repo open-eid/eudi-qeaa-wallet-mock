@@ -12,6 +12,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import ee.ria.eudi.qeaa.wallet.error.WalletException;
 import ee.ria.eudi.qeaa.wallet.model.RequestObject;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.stereotype.Component;
@@ -21,18 +22,18 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 public class AuthorizationRequestValidator {
-    public static final String JWT_TYPE_OAUTH_AUTHZ_REQ_JWT = "oauth-authz-req+jwt";
+    public static final JOSEObjectType JWT_TYPE_OAUTH_AUTHZ_REQ_JWT = new JOSEObjectType("oauth-authz-req+jwt");
     private final SslBundles sslBundles;
     private final ObjectMapper objectMapper;
     private final Set<JWSAlgorithm> acceptedJWSAlgorithms = Set.of(JWSAlgorithm.RS256, JWSAlgorithm.RS384,
         JWSAlgorithm.RS512, JWSAlgorithm.ES256, JWSAlgorithm.ES384, JWSAlgorithm.ES512);
 
-    public RequestObject validate(SignedJWT requestObject, String clientId) {
+    public RequestObject validate(@NonNull SignedJWT requestObject, @NonNull String clientId) {
         try {
             DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
             jwtProcessor.setJWSKeySelector(new X5ChainKeySelector(clientId, acceptedJWSAlgorithms, sslBundles.getBundle("eudi-wallet").getStores().getTrustStore()));
             jwtProcessor.setJWTClaimsSetVerifier(new AuthorizationRequestClaimsVerifier(clientId));
-            jwtProcessor.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(JWT_TYPE_OAUTH_AUTHZ_REQ_JWT)));
+            jwtProcessor.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(JWT_TYPE_OAUTH_AUTHZ_REQ_JWT));
             jwtProcessor.process(requestObject, null);
 
             return objectMapper.readValue(requestObject.getPayload().toString(), RequestObject.class);

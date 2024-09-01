@@ -2,7 +2,6 @@ package ee.ria.eudi.qeaa.wallet.controller;
 
 import com.nimbusds.jwt.SignedJWT;
 import ee.ria.eudi.qeaa.wallet.error.WalletException;
-import ee.ria.eudi.qeaa.wallet.model.PresentationConsent;
 import ee.ria.eudi.qeaa.wallet.model.PresentationDefinition;
 import ee.ria.eudi.qeaa.wallet.model.RequestObject;
 import ee.ria.eudi.qeaa.wallet.repository.RequestObjectRepository;

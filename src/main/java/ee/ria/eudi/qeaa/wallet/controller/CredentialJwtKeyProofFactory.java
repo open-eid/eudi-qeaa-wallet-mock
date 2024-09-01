@@ -1,4 +1,4 @@
-package ee.ria.eudi.qeaa.wallet.factory;
+package ee.ria.eudi.qeaa.wallet.controller;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;

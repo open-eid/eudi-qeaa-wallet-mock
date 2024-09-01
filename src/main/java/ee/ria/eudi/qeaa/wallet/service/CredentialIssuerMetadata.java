@@ -1,4 +1,4 @@
-package ee.ria.eudi.qeaa.wallet.model;
+package ee.ria.eudi.qeaa.wallet.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -57,7 +57,7 @@ public record CredentialIssuerMetadata(
             public record Logo(
                 String uri,
                 String altText
-            ){
+            ) {
             }
 
         }

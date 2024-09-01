@@ -1,9 +1,7 @@
-package ee.ria.eudi.qeaa.wallet.factory;
+package ee.ria.eudi.qeaa.wallet.controller;
 
 import ee.ria.eudi.qeaa.wallet.error.WalletException;
 import ee.ria.eudi.qeaa.wallet.model.Credential;
-import ee.ria.eudi.qeaa.wallet.model.PresentationClaim;
-import ee.ria.eudi.qeaa.wallet.model.PresentationConsent;
 import ee.ria.eudi.qeaa.wallet.util.MDocUtil;
 import id.walt.mdoc.SimpleCOSECryptoProvider;
 import id.walt.mdoc.doc.MDoc;

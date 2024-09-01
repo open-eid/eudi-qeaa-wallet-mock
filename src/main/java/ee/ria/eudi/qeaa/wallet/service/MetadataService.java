@@ -2,8 +2,6 @@ package ee.ria.eudi.qeaa.wallet.service;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import ee.ria.eudi.qeaa.wallet.configuration.properties.WalletProperties;
-import ee.ria.eudi.qeaa.wallet.model.AuthorizationServerMetadata;
-import ee.ria.eudi.qeaa.wallet.model.CredentialIssuerMetadata;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

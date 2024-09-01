@@ -1,4 +1,4 @@
-package ee.ria.eudi.qeaa.wallet.model;
+package ee.ria.eudi.qeaa.wallet.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

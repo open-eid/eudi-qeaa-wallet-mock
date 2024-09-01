@@ -2,11 +2,9 @@ package ee.ria.eudi.qeaa.wallet.service;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
+import ee.ria.eudi.qeaa.wallet.controller.CredentialJwtKeyProofFactory;
+import ee.ria.eudi.qeaa.wallet.controller.CredentialRequest;
 import ee.ria.eudi.qeaa.wallet.error.WalletException;
-import ee.ria.eudi.qeaa.wallet.factory.CredentialJwtKeyProofFactory;
-import ee.ria.eudi.qeaa.wallet.model.CredentialErrorResponse;
-import ee.ria.eudi.qeaa.wallet.model.CredentialRequest;
-import ee.ria.eudi.qeaa.wallet.model.CredentialResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.web.client.RestClientSsl;

@@ -2,6 +2,7 @@ package ee.ria.eudi.qeaa.wallet.model;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import ee.ria.eudi.qeaa.wallet.controller.PresentationClaim;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;

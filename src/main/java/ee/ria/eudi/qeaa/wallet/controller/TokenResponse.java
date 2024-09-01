@@ -1,12 +1,12 @@
-package ee.ria.eudi.qeaa.wallet.model;
+package ee.ria.eudi.qeaa.wallet.controller;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.Builder;
 
-@Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record CredentialErrorResponse(
+public record TokenResponse(
+    String accessToken,
+    String tokenType,
     String cNonce,
     Long cNonceExpiresIn) {
 
