@@ -7,6 +7,7 @@ import ee.ria.eudi.qeaa.wallet.repository.CredentialRepository;
 import ee.ria.eudi.qeaa.wallet.util.MDocUtil;
 import id.walt.mdoc.COSECryptoProviderKeyInfo;
 import id.walt.mdoc.SimpleCOSECryptoProvider;
+import id.walt.mdoc.dataelement.BooleanElement;
 import id.walt.mdoc.dataelement.DEFullDateMode;
 import id.walt.mdoc.dataelement.DataElement;
 import id.walt.mdoc.dataelement.FullDateElement;
@@ -70,15 +71,19 @@ public class PidAttestationConfiguration {
         ValidityInfo validityInfo = getValidityInfo();
         DeviceKeyInfo deviceKeyInfo = getDeviceKeyInfo();
         MDocBuilder mDocBuilder = new MDocBuilder(DOCTYPE_EU_EUROPA_EC_EUDI_PID_1);
-        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "family_name", new StringElement("Mari-Liis"));
+        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "personal_administrative_number", new StringElement("60001019906"));
         mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "given_name", new StringElement("Männik"));
+        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "family_name", new StringElement("Mari-Liis"));
+        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "given_name_birth", new StringElement("Männik"));
+        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "family_name_birth", new StringElement("Mari-Liis"));
+        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "birth_place", new StringElement("Tartu"));
         mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "birth_date", getFullDateElement(1979, 12, 24));
         mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "issuance_date", getFullDateElement(2024, 1, 1));
         mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "expiry_date", getFullDateElement(2032, 1, 1));
         mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "issuing_authority", new StringElement("PPA"));
         mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "issuing_country", new StringElement("EE"));
-        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "document_number", new StringElement("KE1234567"));
-        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_EE_1, "personal_identification_number", new StringElement("60001019906"));
+        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "nationality", new StringElement("EE"));
+        mDocBuilder.addItemToSign(NAMESPACE_EU_EUROPA_EC_EUDI_PID_1, "age_over_18", new BooleanElement(true));
         return mDocBuilder.sign(validityInfo, deviceKeyInfo, issuerCryptoProvider, KEY_ID_ISSUER);
     }
 
